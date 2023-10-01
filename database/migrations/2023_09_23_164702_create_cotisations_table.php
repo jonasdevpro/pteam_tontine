@@ -12,8 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('cotisations', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('participation_id')->constrained();
+            $table->uuid('id')->primary();
+            $table->foreignUuid('participation_id')->constrained();
+            $table->string('periode')->nullable();
+            $table->integer('nbr_cotisations')->default(0); // Ajoutez la colonne 'nbr_cotisations'
             $table->timestamps();
         });
     }

@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('classements', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
+            $table->integer('montant_pris');
+            $table->foreignUuid('participation_id')->constrained();
             $table->timestamps();
         });
     }
