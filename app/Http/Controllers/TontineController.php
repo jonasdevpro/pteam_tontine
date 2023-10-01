@@ -37,23 +37,58 @@ class TontineController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(TontineRequest $request)
-    {
+    public function store(Request $request)
+    {   
         try {
-            $data = $request->validated();
-    
-            $data['user_id'] = auth()->user()->id;
-            $data['status'] = 'inactif';
-    
-            Tontine::create($data);
-    
-            sweetalert()->addSuccess('Une tontine a été créée !');
-            
-            return redirect()->route('tontine.index');
-        } catch (Throwable $th) {
-            sweetalert()->addWarning('Veuillez remplir tous les champs.');
-            return redirect()->route('tontine.create')->withErrors('Veuillez remplir tous les champs.');
+            $validatedData = $request->validate([
+                'number_of_members' => 'required|integer',
+                'name' => 'required|string',
+                'profit' => 'required|string',
+                'amount' => 'required|integer',
+                'amount_payer' => 'required|integer',
+                'delay' => 'required|string',
+                'periode' => 'required|string',
+                'date_debut' => 'required|date',
+                'date_fin' => 'required|date',
+                'description' => 'nullable|string'
+            ]);
+                $tontine = new Tontine();
+                $tontine->number_of_members = $validatedData['number_of_members'];
+                $tontine->user_id = auth()->user()->id;
+                $tontine->status = 'inactif';
+                $tontine->name = $validatedData['name'];
+                $tontine->profit = $validatedData['profit'];
+                $tontine->amount = $validatedData['amount'];
+                $tontine->amount_payer = $validatedData['amount_payer'];
+                $tontine->delay = $validatedData['delay'];
+                $tontine->periode = $validatedData['periode'];
+                $tontine->date_debut = $validatedData['date_debut'];
+                $tontine->date_fin = $validatedData['date_fin'];
+                $tontine->description = $validatedData['description'];
+                $tontine->save();
+                // dd($tontine);
+                sweetalert()->addSuccess('La tontine a été crée avec success !!');
+                return redirect()->back();
+                // return response()->json(['message' => 'Enregistrement créé avec succès'], 200);
+                
+        } catch (\Exception $e) {
+            dd($e);
+            // return response()->json(['error' => 'Erreur de validation des données'], 422);
+
         }
+            // $data = $request->validated();
+        
+
+            // $data['user_id'] = 
+            // $data['status'] = 'inactif';
+        
+        
+            // Tontine::create($data);
+    
+            // sweetalert()->addSuccess('Une tontine a été créée !');
+            
+            // return redirect()->route('tontine.index');
+
     }
     
 
@@ -199,34 +234,40 @@ class TontineController extends Controller
 
     public function rechercheParticipant(Request $request)
     {
-        $term = $request->input('term'); // Récupérez le terme de recherche
+            // Vérifiez si l'utilisateur actuel a le rôle "participant"
+        if(auth()->user()->role !== 'organizer') 
+        {
+            return response()->json(['resultats' => []]);
+        } else 
+        {
+            $term = $request->input('term'); // Récupérez le terme de recherche
 
-        // Séparez le terme de recherche en last_name et first_name
-        $termParts = explode(' ', $term);
-        $last_name = $termParts[0];
-        $first_name = count($termParts) > 1 ? $termParts[1] : '';
+            // Séparez le terme de recherche en last_name et first_name
+            $termParts = explode(' ', $term);
+            $last_name = $termParts[0];
+            $first_name = count($termParts) > 1 ? $termParts[1] : '';
 
-        $resultats = User::where(function ($query) use ($last_name, $first_name) {
-            $query->where('last_name', 'LIKE', "%$last_name%")
-                ->where('first_name', 'LIKE', "%$first_name%");
-        })
-            ->orWhere('phone_number', 'LIKE', "%$term%")
-            ->get();
+            // Requête pour récupérer les utilisateurs avec le rôle "participant" et qui correspondent aux critères de recherche
+            $resultats = User::where('role', '=', 'participant')
+                ->where(function ($query) use ($last_name, $first_name) {
+                    $query->where('last_name', 'LIKE', "%{$last_name}%")
+                        ->where('first_name', 'LIKE', "%{$first_name}%");
+                })
+                ->orWhere('phone_number', 'LIKE',  "%{$term}%")
+                ->get();
 
-
-        // Retournez les résultats en format JSON
-        return response()->json(['resultats' => $resultats]);
+            // Retournez les résultats en format JSON
+            return response()->json(['resultats' => $resultats]);
+        }
     }
 
 
     public function ajaxnewParticipant(Request $request)
-    {
-        // Instanciez la classe Tontine
-        $tontine = new Tontine();
-
-        $userId = $request->input('user_id');
-        $tontineId = $request->input('tontine_id');
-
+{
+    $userId = $request->input('user_id');
+    $tontineId = $request->input('tontine_id');
+    // Assurez-vous que $tontineId contient une valeur valide
+    if ($tontineId) {
         // Exemple de validation côté serveur (dans votre contrôleur)
         if (!Participation::where('user_id', $userId)->where('tontine_id', $tontineId)->exists()) {
             // Créez la nouvelle participation uniquement si elle n'existe pas déjà
@@ -234,10 +275,11 @@ class TontineController extends Controller
                 'user_id' => $userId,
                 'tontine_id' => $tontineId,
                 'nombre_bras' => 1,
-                'rank' => $tontine->participationRank()
+                'rank' => 1 // Assurez-vous d'avoir l'objet $tontine disponible ici
                 // Autres champs
             ]);
-            // Message flash
+
+            // Message flash pour indiquer que la participation a été ajoutée avec succès
             sweetalert()->addSuccess('Nouveau participant créé !');
 
             return response()->json(['msg' => true, 'message' => 'Participation ajoutée avec succès']);
@@ -246,5 +288,10 @@ class TontineController extends Controller
             sweetalert()->addWarning('Cet participant existe déjà.');
             return response()->json(['msg' => false, 'message' => 'Cet participant existe déjà.']);
         }
+    } else {
+        // Si $tontineId est vide, il y a un problème avec la récupération de l'ID de la tontine
+        return response()->json(['msg' => false, 'message' => 'ID de la tontine invalide.']);
     }
+}
+
 }

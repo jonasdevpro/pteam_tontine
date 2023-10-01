@@ -20,24 +20,31 @@
                     <ul class="nav flex-column">
                         <li class="nav-item">
                             <a href="" class="nav-link text-secondary">
-                                Participants <span
-                                    class="float-right badge bg-primary">{{ $tontine->number_of_members }}</span>
+                                Debute le <span class="float-right badge bg-primary">{{ $tontine->date_debut }}</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="#" class="nav-link text-secondary">
-                                Cotisation <span class="float-right badge bg-info">{{ $tontine->amount }} FCFA</span>
+                                Cotisation <span class="float-right badge bg-info">{{ $tontine->amount_payer }} FCFA</span>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link text-secondary">
-                                Bénéfice <span class="float-right badge bg-success"> {{ $tontine->profit }} FCFA</span>
-                            </a>
-                        </li>
+                        <div hidden id="tontineId" data-id="{{ $tontine->id }}"></div>
                         <li class="nav-item">
                             <a href="#" class="nav-link text-secondary">
                                 Adhérants <span
                                     class="float-right badge bg-danger">{{ $tontine->currentMembersNumber() }}/{{ $tontine->number_of_members }}</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link text-secondary">
+                                Période <span class="float-right badge bg-danger"> Chaque
+                                    {{ $tontine->delay . ' ' . $tontine->periode }}
+                                </span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link text-secondary">
+                                Date de Fin <span class="float-right badge bg-info">{{ $tontine->date_fin }}</span>
                             </a>
                         </li>
                     </ul>
@@ -48,6 +55,7 @@
     <!-- /.widget-user -->
     <section class="content-header">
         <div class="container-fluid my-2">
+            <marquee behavior="left" direction="right"><b>Le prochain paiement est le <span class="text-warning">10 Novembre 2023</span></b></marquee>
             <div class="row justify-content-center align-items-center d-flex">
                 <div class="col-sm-12 col-md-12 col-lg-7">
                     <h1>Liste des Participants</h1>
@@ -80,6 +88,7 @@
                             <th>Bras</th>
                             <th>Rang</th>
                             <th>Cotisation</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -91,7 +100,17 @@
                                 </td>
                                 <td><a href="#">{{ $participation->nombre_bras }}</a></td>
                                 <td> {{ $participation->rank }} </td>
-                                <td>{{ $tontine->participation->count() }}/{{ $tontine->number_of_members }}</td>
+                                <td> {{ $participation->cotisations->count() }}
+                                    / {{ $tontine->number_of_members }}
+                                <td>
+                                    <button class="btn btn-warning cotiser-btn"
+                                        data-participation-id="{{ $participation->id }}">Cotiser
+                                    </button>
+                                    <button class="btn btn-success cotiser-btn"
+                                    >Prise
+                                    </button>
+
+                                </td>
                             </tr>
                         @empty
                             <b class="text-warning">Aucun participant n'a été ajouté </b>
@@ -106,80 +125,7 @@
 
 @endsection
 @section('script')
-    <!-- Inclure les fichiers JavaScript de Bootstrap (jQuery requis) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
-   <script>
-    $(document).ready(function() {
-    var csrfToken = $('meta[name="csrf-token"]').attr('content');
-    var tontineId = getTontineIdFromUrl();
-
-    function getTontineIdFromUrl() {
-        var url = window.location.href;
-        var parts = url.split('/');
-        return parts[parts.length - 1];
-    }
-
-    $('#searchText').on('input', function() {
-        var term = $(this).val();
-
-        $.ajax({
-            url: '{{ route('tontine.rechercheParticipant') }}',
-            type: 'POST',
-            data: {
-                term: term,
-                '_token': csrfToken
-            },
-            success: function(response) {
-                var tbody = $('#resultsTable tbody');
-                tbody.empty();
-
-                response.resultats.forEach(function(participant) {
-                    var row = `<tr>
-                        <td>${participant.last_name} ${participant.first_name}</td>
-                        <td>${participant.phone_number}</td>
-                        <td><button type="button" class="btn btn-success" data-user-id="${participant.id}">Ajouter</button></td>
-                    </tr>`;
-                    tbody.append(row);
-                });
-
-                $('form').submit(function() {
-                    $(this).find(':submit').attr('disabled', 'disabled');
-                });
-
-                $('body').on('click', '.btn-success', function() {
-                    var userId = $(this).data('user-id');
-                    $(this).attr('disabled', 'disabled');
-                    
-                    $.ajax({
-                        url: '{{ route('tontine.ajaxnewParticipant') }}',
-                        type: 'POST',
-                        data: {
-                            user_id: userId,
-                            tontine_id: tontineId,
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: function(response) {
-                            location.reload(true); // Rechargez la page
-                            if (response.msg) {
-                                swal("Succès!", response.message, "success");
-                            } else {
-                                swal("Erreur!", response.message, "error");
-                            }
-                            console.log(response.message);
-                        },
-                        complete: function() {
-                            $('.btn-success').removeAttr('disabled');
-                        }
-                    });
-                });
-
-                var searchResultsInput = $('#searchResults');
-                searchResultsInput.val(response.resultats.length + ' résultat(s) trouvé(s)');
-            }
-        });
-    });
-});
-
-   </script>
+    @include('tontine.requete-ajax')
 @endsection

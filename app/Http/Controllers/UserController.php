@@ -22,10 +22,7 @@ class UserController extends Controller
             $users = User::where('user_id', $userAuth->id)
                 ->orderBy('created_at', 'desc')
                 ->get();
-            // Obtenez l'ID de l'utilisateur dont vous voulez compter les tontines associées
-            // Comptez le nombre de tontines auxquelles l'utilisateur est associé en tant qu'organisateur via les participations
-            $nombreDeTontinesUser = Tontine::with('user')->count();
-            return view('user.index', compact('users', 'nombreDeTontinesUser'));
+            return view('user.index', compact('users'));
         } else {
             // Affiche des organisateurs ou des administrateurs
         }

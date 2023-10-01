@@ -3,7 +3,7 @@
 
 @section('css')
     <!-- SweetAlert2 -->
-    <link rel="stylesheet" href="{{ asset('plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
+    <link rel="stylesheet" href="../plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
 @endsection
 
 
@@ -11,9 +11,6 @@
     <div class="container">
         <div class="row justify-content-md-center justify-content-xs-center justify-content-lg-end">
             <div class="col-sm-6 col-md-4 text-center">
-                <button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#modal-default">
-                    Ajouter un nouveau
-                </button>
                 @include('tontine.create')
             </div>
         </div>
@@ -23,9 +20,9 @@
                     <a href="{{ route('tontine.show', $tontine->id) }}" class="text-decoration-none">
                         <div class="small-box bg-info">
                             <div class="inner">
-                                <h3>{{ $tontine->name }}</h3>
-                                <h4>Participants: {{ $tontine->number_of_members }}</h4>
-                                <b>Participations : {{ $tontine->amount }}fcfa</b>
+                                <h4>{{ $tontine->name }}</h4>
+                                <h5>Participants: {{ $tontine->number_of_members }}</h5>
+                                <b>Participations : {{ $tontine->amount_payer }}fcfa</b>
                             </div>
                             <div class="icon">
                                 <i class="fas fa-shopping-cart"></i>
@@ -39,26 +36,32 @@
 @endsection
 @section('script')
     {{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
+    <script src="{{ asset('script/montant.js') }}"></script>
+    <script defer src="{{ asset('script/js-date.js') }}"></script>
     <script>
-        $(document).ready(function() {
-            // Désactiver le bouton "Enregistrer" par défaut
-            $('#save-button').prop('disabled', true);
+        document.getElementById('tontine-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Empêche la soumission du formulaire par défaut
 
-            // Écouter les événements de saisie dans les champs requis
-            $('.required-field').on('input', function() {
-                // Vérifier si tous les champs requis (sauf Description) sont remplis ou saisis
-                var allFieldsFilled = true;
+            // Récupérez les données du formulaire
+            const formData = new FormData(this);
 
-                $('.required-field').each(function() {
-                    if ($(this).val().trim() === '') {
-                        allFieldsFilled = false;
-                        return false; // Sortir de la boucle each si un champ est vide
+            // Effectuez la requête AJAX
+            fetch('{{ route('tontine.store') }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content')
                     }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Traitez la réponse du serveur ici si nécessaire
+                    console.log(data);
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
                 });
-
-                // Activer ou désactiver le bouton "Enregistrer" en fonction de l'état des champs
-                $('#save-button').prop('disabled', !allFieldsFilled);
-            });
         });
     </script>
 @endsection

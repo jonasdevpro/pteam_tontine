@@ -38,7 +38,6 @@ Route::middleware(['auth'])->group(function(){
         'user'=>UserController::class,
         'cotisation'=>CotisationController::class,
         'dashboard'=>DashboardController::class,
-        'participation'=>ParticipationController::class,
         'tontine'=>TontineController::class,
         'classement'=>ClassementController::class,
     ]);
@@ -57,4 +56,7 @@ Route::middleware(['auth'])->group(function(){
 
     // Show detaille participant
     Route::get('user/{user}/particpant', [UserController::class, 'showParticipant'])->name('user.showParticipant');
+
+    //Route pour cotisation
+    Route::post('/cotiser/{participation}', [CotisationController::class, 'cotiser'])->name('majcotisation');
 });

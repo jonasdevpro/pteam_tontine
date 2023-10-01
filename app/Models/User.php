@@ -22,9 +22,9 @@ class User extends Authenticatable
     protected $guarded = [''];
 
     //cette relations signifie que un user peut etre associer a plusieurs tontines
-    public function tontines()
+    public function participants()
     {
-        return $this->hasMany(Tontine::class, 'user_id');
+        return $this->hasMany(Participation::class, 'user_id');
     }
     /**
      * The attributes that should be hidden for serialization.

@@ -1,3 +1,6 @@
+<button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#modal-default">
+    Ajouter un nouveau
+</button>
 <div class="modal fade" id="modal-default">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -8,8 +11,14 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form id="tontine-form" action="{{ route('tontine.store') }}" method="POST">
+                <form id="tontine-for" method="POST">
                     @csrf
+                    <div class="form-group col-md-12">
+                        <label for="number_of_members">Nombre de membres:</label>
+                        <select name="number_of_members" id="number_of_members">
+                            <option value="">-Definir-</option>
+                        </select>
+                    </div>
                     <div class="row row-cols-2 text-start">
                         <div class="form-group col-md-6">
                             <label for="name">Nom:</label>
@@ -17,9 +26,19 @@
                                 class="form-control required-field" required>
                         </div>
                         <div class="form-group col-md-6">
-                            <label for="profit">Bénéfice:</label>
-                            <input id="profit" name="profit" type="number" placeholder="Bénéfice"
+                            <label for="profit">Frais:</label>
+                            <select id="profit" name="profit" class="form-control required-field">
+                                <option value="">--Choisir--</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="amount">Montant:</label>
+                            <input id="amountInput" name="amount" type="number" placeholder="Montant a payer"
                                 class="form-control required-field" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="amountOutput">Montant à Payer:</label>
+                            <input id="amountOutput" name="amount_payer" type="number" readonly >
                         </div>
                         <div class="form-group col-md-6">
                             <label for="delay">Délai:</label>
@@ -29,6 +48,7 @@
                         <div class="form-group col-md-6">
                             <label for="periode">Période:</label>
                             <select id="periode" name="periode" class="form-select" required>
+                                <option value="">--Choisir--</option>
                                 <option value="day">Jour</option>
                                 <option value="week">Semaine</option>
                                 <option value="month">Mois</option>
@@ -36,16 +56,15 @@
                             </select>
                         </div>
                         <div class="form-group col-md-6">
-                            <label for="amount">Montant:</label>
-                            <input id="amount" name="amount" type="number" placeholder="Montant"
-                                class="form-control required-field" required>
-                        </div>
+                            <label for="delay">Date début:</label>
+                            <input name="date_debut" id="date_debut" type="date" class="form-control required-field" min="<?php echo date('Y-m-d'); ?>">
+                        </div>                        
                         <div class="form-group col-md-6">
-                            <label for="number_of_members">Nombre de membres:</label>
-                            <input id="number_of_members" name="number_of_members" type="number"
-                                placeholder="Nombre de membres" class="form-control required-field" required>
+                            <label for="periode">Date fin:</label>
+                            <input name="date_fin" id="date_fin" type="date" placeholder="Délai"
+                                class="form-control required-field" readonly>
                         </div>
-                        <div class="form-group  col-12">
+                        <div class="form-group col-12">
                             <label for="description">Description:</label>
                             <textarea id="description" name="description" class="form-control" rows="2" placeholder="Description"></textarea>
                         </div>

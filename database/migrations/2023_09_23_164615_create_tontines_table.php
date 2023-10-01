@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -13,13 +12,16 @@ return new class extends Migration
     {
         Schema::create('tontines', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('name');
+            $table->string('name')->unique();
             $table->integer('profit');
             $table->integer('delay');
             $table->enum('periode', ['day', 'week', 'month', 'year']);
+            $table->date('date_debut');
+            $table->date('date_fin');
             $table->integer('amount');
+            $table->integer('amount_payer');
             $table->integer('number_of_members');
-            $table->text('description');
+            $table->text('description')->nullable();
             $table->string('status')->nullable();
             $table->timestamps();
             $table->timestamp('started_at')->nullable();
@@ -27,7 +29,7 @@ return new class extends Migration
             $table->text('suspension_reason')->nullable();
             $table->softDeletes();
             $table->foreignUuid('user_id')->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
-});
+        });
     }
 
     /**

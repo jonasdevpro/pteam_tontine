@@ -15,8 +15,9 @@ class Participation extends Model
     protected $guarded = [''];
 
 
-    public function Cotisation(){
-        return $this->hasMany(Cotisation::class);
+    public function cotisations()
+    {
+        return $this->hasMany(Cotisation::class, 'participation_id');
     }
 
     public function user(){

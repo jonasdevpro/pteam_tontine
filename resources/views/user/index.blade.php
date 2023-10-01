@@ -20,7 +20,7 @@
                                 <h4 class="profile-username mb-1">Nom (s): {{ $user->last_name . ' ' . $user->first_name }}
                                 </h4>
                                 <h5 class="text-muted">Tel: {{ $user->phone_number }}</h5>
-                                <h6 class="text-muted">Adhérents à <span style="color: red"> {{ $user->tontines->count() }} </span> Tontines</h6>
+                                <h6 class="text-muted">Adhérents à <span style="color: red"> {{ $user->participants->count() }} </span> Tontines</h6>
                             </div>
                             <div class="text-center">
                                 <a href="#" class="btn btn-primary btn-sm"><b>Voir</b></a>

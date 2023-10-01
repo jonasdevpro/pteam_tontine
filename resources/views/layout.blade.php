@@ -69,7 +69,7 @@
 
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar elevation-4" style="background: #006400; color: #FFFFFF;">
-            <h2 class="text-center">Tontine V1.1.0</h2>
+            <h5 class="text-center">Tontine V1.1.0</h5>
             <!-- Sidebar -->
             <div class="sidebar">
                 <!-- Sidebar Menu -->

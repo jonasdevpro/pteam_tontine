@@ -4,70 +4,28 @@ namespace App\Http\Controllers;
 
 use App\Models\Cotisation;
 use Illuminate\Http\Request;
+use App\Models\Participation;
 
 class CotisationController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function cotiser($participationId)
     {
-        $cotisations = Cotisation::orderBy('created_at', 'desc');
+        // Logique de traitement pour la cotisation
+        // Mettez à jour le nombre de cotisations, etc.
 
-        return view('', compact('cotisations'));
-    }
+        // Exemple : Mettez à jour le nombre de cotisations dans la participation
+        $participation = Participation::find($participationId);
+        $participation->nbr_cotisations = $participation->nbr_cotisations + 1;
+        $participation->save();
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        return view('');
-    }
+        // Exemple : Créez un enregistrement de cotisation
+        Cotisation::create([
+            'participation_id' => $participationId,
+            'periode' => date('Y-m-d'), // Période actuelle (aujourd'hui)
+            'montant' => 100, // Montant de la cotisation (à adapter selon votre logique)
+        ]);
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        Cotisation::create($request->all());
-
-        return to_route('');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Cotisation $cotisation)
-    {
-        return view('', compact('cotisation'));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Cotisation $cotisation)
-    {
-        return view('', compact('cotisation'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Cotisation $cotisation)
-    {
-        $cotisation->update($request->all());
-
-        return to_route('');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Cotisation $cotisation)
-    {
-        $cotisation->delete();
-
-        return to_route('');
+        // Réponse JSON (si nécessaire)
+        return response()->json(['success' => true, 'message' => 'Cotisation effectuée avec succès']);
     }
 }
